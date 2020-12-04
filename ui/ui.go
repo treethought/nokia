@@ -125,10 +125,10 @@ func (ui *UI) initGrid() {
 
 func (u *UI) setSyncHandlers() {
 	u.m.SetMessageHandler(u.state.ProcessMessage)
+	u.m.SetSyncCallback(u.state.toDisk)
 }
 
 func Start() {
-
 	ui := New()
 	ui.init()
 	ui.setSyncHandlers()
@@ -142,4 +142,5 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
+
 }

@@ -8,7 +8,8 @@ import (
 )
 
 type Client struct {
-	m *mautrix.Client
+	m            *mautrix.Client
+	syncCallback func()
 }
 
 func New() (c *Client, err error) {
@@ -42,8 +43,14 @@ func (c *Client) Sync() error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Info("Sync complete, calling callback")
+	go c.syncCallback()
 
 	return nil
+}
+
+func (c *Client) SetSyncCallback(f func()) {
+	c.syncCallback = f
 }
 
 func (c *Client) SetMessageHandler(handler mautrix.EventHandler) {
@@ -58,10 +65,7 @@ func (c *Client) ListRooms() ([]string, error) {
 	}
 	rooms := []string{}
 	for _, r := range resp.JoinedRooms {
-
 		rooms = append(rooms, r.String())
-
 	}
 	return rooms, nil
-
 }

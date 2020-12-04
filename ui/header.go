@@ -15,7 +15,7 @@ func NewHeaderWidget() *HeaderWidget {
 
 func (w *HeaderWidget) Render(ui *UI) error {
 	w.Clear()
-	w.SetText("bend the spoon")
+	w.SetText("there is no spoon")
 	w.SetBackgroundColor(tcell.ColorDefault)
 	return nil
 

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"encoding/json"
+	"os"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -53,6 +55,7 @@ func (s *State) ProcessMessage(src mautrix.EventSource, e *event.Event) {
 	m := &Message{e.Content.AsMessage(), sender}
 	s.Messages[e.RoomID] = append(s.Messages[e.RoomID], m)
 	s.ui.Render()
+	go s.toDisk()
 }
 
 func (s *State) CurrentRoomMessages() []*Message {
@@ -60,5 +63,42 @@ func (s *State) CurrentRoomMessages() []*Message {
 		return []*Message{}
 	}
 	return s.Messages[s.CurrentRoom]
+
+}
+
+func (s *State) fromDisk() {
+	log.Info("Loading state from disk")
+	path := "state.json"
+	f, err := os.Open(path)
+	defer f.Close()
+	if err != nil {
+		if os.IsNotExist(err) {
+			nf, err := os.Create(path)
+			defer nf.Close()
+			if err != nil {
+				panic(err)
+			}
+			return
+		}
+	}
+	dec := json.NewDecoder(f)
+	err = dec.Decode(s)
+	if err != nil {
+		log.Info(err)
+	}
+	log.Info("State loaded from disk")
+
+}
+
+func (s *State) toDisk() {
+	log.Info("Writing state to disk")
+	f, err := os.Create("state.json")
+	enc := json.NewEncoder(f)
+	err = enc.Encode(s)
+	if err != nil {
+		panic(err)
+	}
+	f.Close()
+	log.Info("Wrote state to disk")
 
 }
