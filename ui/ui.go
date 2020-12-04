@@ -17,11 +17,12 @@ const (
 )
 
 type UI struct {
-	app     *cview.Application
-	grid    *cview.Grid
-	Widgets map[View]WidgetRenderer
-	m       *matrix.Client
-	state   *State
+	app           *cview.Application
+	grid          *cview.Grid
+	Widgets       map[View]WidgetRenderer
+	m             *matrix.Client
+	state         *State
+	currentwidget WidgetRenderer
 }
 
 type WidgetRenderer interface {
@@ -79,6 +80,17 @@ func (ui *UI) roomSelectHandler(item *cview.ListItem) {
 
 }
 
+func (ui *UI) toggleFocus() {
+	if ui.currentwidget == ui.Widgets[RoomList] {
+		ui.app.SetFocus(ui.Widgets[MessageList])
+		ui.currentwidget = ui.Widgets[MessageList]
+	} else {
+		ui.app.SetFocus(ui.Widgets[RoomList])
+		ui.currentwidget = ui.Widgets[RoomList]
+
+	}
+}
+
 func (ui *UI) initGrid() {
 	ui.grid = cview.NewGrid()
 	ui.grid.SetRows(-1, -3, -1)
@@ -96,9 +108,16 @@ func (ui *UI) initGrid() {
 	ui.app.QueueUpdateDraw(func() {})
 
 	ui.app.SetFocus(ui.Widgets[RoomList])
+	ui.currentwidget = ui.Widgets[RoomList]
 
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 
+		key := event.Key()
+		switch key {
+		case tcell.KeyTAB:
+			ui.toggleFocus()
+			return nil
+		}
 		return event
 	})
 
