@@ -29,6 +29,7 @@ func (w *MessagesWidget) Render(ui *UI) error {
 
 	for _, m := range msgs {
 		item := cview.NewListItem(m.Body)
+		item.SetSecondaryText(m.Sender)
 		w.AddItem(item)
 	}
 

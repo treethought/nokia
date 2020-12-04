@@ -25,6 +25,7 @@ type Room struct {
 
 type Message struct {
 	*event.MessageEventContent
+	Sender string
 }
 
 func NewState(ui *UI) *State {
@@ -47,7 +48,9 @@ func (s *State) ProcessMessage(src mautrix.EventSource, e *event.Event) {
 		s.Rooms[e.RoomID] = &Room{id: e.RoomID, stateKey: e.StateKey}
 	}
 
-	m := &Message{e.Content.AsMessage()}
+	sender := e.Sender.String()
+
+	m := &Message{e.Content.AsMessage(), sender}
 	s.Messages[e.RoomID] = append(s.Messages[e.RoomID], m)
 	s.ui.Render()
 }
