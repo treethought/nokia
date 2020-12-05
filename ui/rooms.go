@@ -16,6 +16,7 @@ func NewRoomsWidget() *RoomWidget {
 		List: cview.NewList(),
 	}
 	w.SetInputCapture(w.HandleInput)
+	w.SetBackgroundColor(tcell.ColorDefault)
 	return w
 }
 

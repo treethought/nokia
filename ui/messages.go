@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"gitlab.com/tslocum/cview"
 )
 
@@ -14,6 +15,7 @@ func NewMessagesWidget() *MessagesWidget {
 		List:     cview.NewList(),
 		messages: make([]*Message, 0),
 	}
+	w.SetBackgroundColor(tcell.ColorDefault)
 	return w
 }
 
