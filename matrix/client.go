@@ -1,11 +1,13 @@
 package matrix
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/treethought/spoon/logger"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
+
+var log = logger.GetLoggerInstance()
 
 type Client struct {
 	m            *mautrix.Client
@@ -24,7 +26,7 @@ func (c *Client) Login() {
 	username := viper.GetString("user")
 	password := viper.GetString("password")
 
-	log.Infof("Logging into %s as %s", homeserver, username)
+	log.Printf("Logging into %s as %s", homeserver, username)
 	_, err := c.m.Login(&mautrix.ReqLogin{
 		Type:             "m.login.password",
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: username},
@@ -34,16 +36,16 @@ func (c *Client) Login() {
 	if err != nil {
 		log.Fatalf("Failed to login to homeserver %s: %v", homeserver, err)
 	}
-	log.Info("Successfully logged in")
+	log.Print("Successfully logged in")
 }
 
 func (c *Client) Sync() error {
-	log.Info("syncing....\n")
+	log.Print("syncing....\n")
 	err := c.m.Sync()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Sync complete, calling callback")
+	log.Print("Sync complete, calling callback")
 	go c.syncCallback()
 
 	return nil

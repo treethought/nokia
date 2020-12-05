@@ -5,7 +5,6 @@ import (
 	"os"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -43,10 +42,9 @@ func NewState(ui *UI) *State {
 func (s *State) handleMessageEvent(src mautrix.EventSource, e *event.Event) {
 	s.Lock()
 	defer s.Unlock()
-	if _, ok := s.Rooms[e.RoomID]; ok {
-		log.Debug("Room already processed")
-	} else {
+	if _, ok := s.Rooms[e.RoomID]; !ok {
 		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey}
+		log.Printf("handling first message for room %s", e.RoomID.String())
 	}
 
 	sender := e.Sender.String()
@@ -59,6 +57,7 @@ func (s *State) handleMessageEvent(src mautrix.EventSource, e *event.Event) {
 }
 
 func (s *State) handleRoomNameEvent(src mautrix.EventSource, e *event.Event) {
+	log.Print("Handling StateRoomName event")
 	s.Lock()
 	defer s.Unlock()
 
@@ -83,7 +82,7 @@ func (s *State) CurrentRoomMessages() []*Message {
 }
 
 func (s *State) fromDisk() {
-	// logger.Info("Loading state from disk")
+	log.Print("Loading state from disk")
 	path := "state.json"
 	f, err := os.Open(path)
 	defer f.Close()
@@ -100,14 +99,14 @@ func (s *State) fromDisk() {
 	dec := json.NewDecoder(f)
 	err = dec.Decode(s)
 	if err != nil {
-		log.Info(err)
+		log.Print(err)
 	}
-	// logger.Info("State loaded from disk")
+	log.Print("State loaded from disk")
 
 }
 
 func (s *State) toDisk() {
-	// logger.Info("Writing state to disk")
+	log.Print("Writing state to disk")
 	f, err := os.Create("state.json")
 	enc := json.NewEncoder(f)
 	err = enc.Encode(s)
@@ -115,6 +114,6 @@ func (s *State) toDisk() {
 		panic(err)
 	}
 	f.Close()
-	// logger.Info("Wrote state to disk")
+	log.Print("Wrote state to disk")
 
 }

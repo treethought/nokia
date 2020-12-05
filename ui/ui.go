@@ -2,12 +2,14 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
-	log "github.com/sirupsen/logrus"
+	"github.com/treethought/spoon/logger"
 	"github.com/treethought/spoon/matrix"
 	"gitlab.com/tslocum/cview"
 )
 
 type View string
+
+var log = logger.GetLoggerInstance()
 
 const (
 	RoomList    View = "rooms"
@@ -48,6 +50,7 @@ func New() *UI {
 func (ui *UI) init() {
 	ui.initWidgets()
 	ui.initGrid()
+	log.Print("UI intiialized")
 }
 
 func (ui *UI) Render() {
@@ -67,6 +70,7 @@ func (ui *UI) initWidgets() {
 
 	msgs := NewMessagesWidget()
 	ui.Widgets[MessageList] = msgs
+	log.Print("widgets initialized")
 
 }
 
@@ -77,6 +81,7 @@ func (ui *UI) roomSelectHandler(item *cview.ListItem) {
 	if !ok {
 		panic("room ref not a room")
 	}
+	log.Printf("Selected room: %s", room.ID.String())
 
 	roomId := room.ID
 	ui.state.CurrentRoom = roomId
@@ -100,14 +105,11 @@ func (ui *UI) initGrid() {
 	ui.grid = cview.NewGrid()
 	ui.grid.SetRows(-1, -5, -1)
 	ui.grid.SetColumns(0, -3, 0)
-	ui.grid.SetBorders(false)
+	ui.grid.SetBorders(true)
 
 	// ui.grid.AddItem(ui.Widgets[Header], 0, 0, 1, 3, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[RoomList], 1, 0, 3, 1, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 3, 3, 0, 0, true)
-
-	log.Info("GRIDD")
-	log.Info(ui.grid)
 
 	ui.app.SetRoot(ui.grid, true)
 	ui.app.QueueUpdateDraw(func() {})
@@ -125,6 +127,7 @@ func (ui *UI) initGrid() {
 		}
 		return event
 	})
+	log.Print("grid initialized")
 
 }
 
