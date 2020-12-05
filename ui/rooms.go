@@ -40,7 +40,14 @@ func (w *RoomWidget) Render(ui *UI) error {
 	}
 
 	for id, r := range ui.state.Rooms {
-		item := cview.NewListItem(id.String())
+		var item *cview.ListItem
+
+		if r.Name != "" {
+			item = cview.NewListItem(r.Name)
+		} else {
+			item = cview.NewListItem(id.String())
+
+		}
 		item.SetReference(r)
 		w.AddItem(item)
 	}

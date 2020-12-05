@@ -58,6 +58,11 @@ func (c *Client) SetMessageHandler(handler mautrix.EventHandler) {
 	syncer.OnEventType(event.EventMessage, handler)
 }
 
+func (c *Client) SetRoomNameHandler(handler mautrix.EventHandler) {
+	syncer := c.m.Syncer.(*mautrix.DefaultSyncer)
+	syncer.OnEventType(event.StateRoomName, handler)
+}
+
 func (c *Client) ListRooms() ([]string, error) {
 	resp, err := c.m.JoinedRooms()
 	if err != nil {

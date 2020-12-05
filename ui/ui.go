@@ -5,7 +5,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/treethought/spoon/matrix"
 	"gitlab.com/tslocum/cview"
-	"maunium.net/go/mautrix/id"
 )
 
 type View string
@@ -40,6 +39,7 @@ func New() *UI {
 	ui := &UI{app: tapp, m: m}
 
 	ui.state = NewState(ui)
+	ui.state.fromDisk()
 
 	ui.Widgets = make(map[View]WidgetRenderer)
 	return ui
@@ -58,23 +58,28 @@ func (ui *UI) Render() {
 
 func (ui *UI) initWidgets() {
 
-	header := NewHeaderWidget()
+	// header := NewHeaderWidget()
+	// ui.Widgets[Header] = header
 
 	rooms := NewRoomsWidget()
-	rooms.SetBackgroundColor(tcell.ColorIndianRed)
 	rooms.SetSelectHandler(ui.roomSelectHandler)
+	ui.Widgets[RoomList] = rooms
 
 	msgs := NewMessagesWidget()
-
-	ui.Widgets[RoomList] = rooms
-	ui.Widgets[Header] = header
 	ui.Widgets[MessageList] = msgs
 
 }
 
 func (ui *UI) roomSelectHandler(item *cview.ListItem) {
-	roomText := item.GetMainText()
-	ui.state.CurrentRoom = id.RoomID(roomText)
+	ref := item.GetReference()
+
+	room, ok := ref.(*Room)
+	if !ok {
+		panic("room ref not a room")
+	}
+
+	roomId := room.ID
+	ui.state.CurrentRoom = roomId
 	ui.Widgets[MessageList].Render(ui)
 	ui.app.SetFocus(ui.Widgets[MessageList])
 
@@ -93,11 +98,11 @@ func (ui *UI) toggleFocus() {
 
 func (ui *UI) initGrid() {
 	ui.grid = cview.NewGrid()
-	ui.grid.SetRows(-1, -3, -1)
+	ui.grid.SetRows(-1, -5, -1)
 	ui.grid.SetColumns(0, -3, 0)
 	ui.grid.SetBorders(false)
 
-	ui.grid.AddItem(ui.Widgets[Header], 0, 0, 1, 3, 0, 0, true)
+	// ui.grid.AddItem(ui.Widgets[Header], 0, 0, 1, 3, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[RoomList], 1, 0, 3, 1, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 3, 3, 0, 0, true)
 
@@ -124,7 +129,8 @@ func (ui *UI) initGrid() {
 }
 
 func (u *UI) setSyncHandlers() {
-	u.m.SetMessageHandler(u.state.ProcessMessage)
+	u.m.SetMessageHandler(u.state.handleMessageEvent)
+	u.m.SetRoomNameHandler(u.state.handleRoomNameEvent)
 	u.m.SetSyncCallback(u.state.toDisk)
 }
 
@@ -137,6 +143,13 @@ func Start() {
 	ui.m.Login()
 
 	go ui.m.Sync()
+
+	// go func(*UI) {
+	// 	err := ui.app.Run()
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// }(ui)
 
 	err := ui.app.Run()
 	if err != nil {

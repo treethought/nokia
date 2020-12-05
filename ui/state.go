@@ -20,9 +20,9 @@ type State struct {
 }
 
 type Room struct {
-	id       id.RoomID
-	alias    id.RoomAlias
-	stateKey *string
+	ID       id.RoomID
+	Name     string
+	StateKey *string
 }
 
 type Message struct {
@@ -40,14 +40,13 @@ func NewState(ui *UI) *State {
 
 }
 
-func (s *State) ProcessMessage(src mautrix.EventSource, e *event.Event) {
+func (s *State) handleMessageEvent(src mautrix.EventSource, e *event.Event) {
 	s.Lock()
 	defer s.Unlock()
-
 	if _, ok := s.Rooms[e.RoomID]; ok {
 		log.Debug("Room already processed")
 	} else {
-		s.Rooms[e.RoomID] = &Room{id: e.RoomID, stateKey: e.StateKey}
+		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey}
 	}
 
 	sender := e.Sender.String()
@@ -56,6 +55,23 @@ func (s *State) ProcessMessage(src mautrix.EventSource, e *event.Event) {
 	s.Messages[e.RoomID] = append(s.Messages[e.RoomID], m)
 	s.ui.Render()
 	go s.toDisk()
+
+}
+
+func (s *State) handleRoomNameEvent(src mautrix.EventSource, e *event.Event) {
+	s.Lock()
+	defer s.Unlock()
+
+	name := e.Content.AsRoomName().Name
+	if r, ok := s.Rooms[e.RoomID]; ok {
+		r.Name = name
+	} else {
+		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey, Name: name}
+	}
+	s.ui.Render()
+	go s.toDisk()
+
+	return
 }
 
 func (s *State) CurrentRoomMessages() []*Message {
@@ -67,7 +83,7 @@ func (s *State) CurrentRoomMessages() []*Message {
 }
 
 func (s *State) fromDisk() {
-	log.Info("Loading state from disk")
+	// logger.Info("Loading state from disk")
 	path := "state.json"
 	f, err := os.Open(path)
 	defer f.Close()
@@ -86,12 +102,12 @@ func (s *State) fromDisk() {
 	if err != nil {
 		log.Info(err)
 	}
-	log.Info("State loaded from disk")
+	// logger.Info("State loaded from disk")
 
 }
 
 func (s *State) toDisk() {
-	log.Info("Writing state to disk")
+	// logger.Info("Writing state to disk")
 	f, err := os.Create("state.json")
 	enc := json.NewEncoder(f)
 	err = enc.Encode(s)
@@ -99,6 +115,6 @@ func (s *State) toDisk() {
 		panic(err)
 	}
 	f.Close()
-	log.Info("Wrote state to disk")
+	// logger.Info("Wrote state to disk")
 
 }
