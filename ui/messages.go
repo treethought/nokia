@@ -16,10 +16,13 @@ func NewMessagesWidget() *MessagesWidget {
 		messages: make([]*Message, 0),
 	}
 	w.SetBackgroundColor(tcell.ColorDefault)
+	w.SetMainTextColor(tcell.ColorLightCyan)
+	w.SetSecondaryTextColor(tcell.ColorWhite)
 	return w
 }
 
 func (w *MessagesWidget) Render(ui *UI) error {
+	log.Print("Rendering Messages")
 	w.Clear()
 	msgs := ui.state.CurrentRoomMessages()
 	if len(msgs) == 0 {
@@ -30,8 +33,8 @@ func (w *MessagesWidget) Render(ui *UI) error {
 	}
 
 	for _, m := range msgs {
-		item := cview.NewListItem(m.Body)
-		item.SetSecondaryText(m.Sender)
+		item := cview.NewListItem(m.Sender)
+		item.SetSecondaryText(m.Body)
 		w.AddItem(item)
 	}
 

@@ -14,7 +14,7 @@ var log = logger.GetLoggerInstance()
 const (
 	RoomList    View = "rooms"
 	MessageList View = "main"
-	Header      View = "header"
+	Status      View = "status"
 )
 
 type UI struct {
@@ -61,8 +61,8 @@ func (ui *UI) Render() {
 
 func (ui *UI) initWidgets() {
 
-	// header := NewHeaderWidget()
-	// ui.Widgets[Header] = header
+	status := NewStatusWidget()
+	ui.Widgets[Status] = status
 
 	rooms := NewRoomsWidget()
 	rooms.SetSelectHandler(ui.roomSelectHandler)
@@ -107,7 +107,7 @@ func (ui *UI) initGrid() {
 	ui.grid.SetColumns(0, -3, 0)
 	ui.grid.SetBorders(true)
 
-	// ui.grid.AddItem(ui.Widgets[Header], 0, 0, 1, 3, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[Status], 0, 2, 1, 3, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[RoomList], 1, 0, 3, 1, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 3, 3, 0, 0, true)
 
