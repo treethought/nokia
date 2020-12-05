@@ -25,14 +25,14 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-	u "github.com/treethought/spoon/ui"
+	u "github.com/treethought/nokia/ui"
 )
 
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "spoon",
+	Use:   "nokia",
 	Short: "A TUI client for matrix",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -57,7 +57,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.spoon.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.nokia.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -77,7 +77,7 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".spoon" (without extension).
+		// Search config in home directory with name ".nokia" (without extension).
 		viper.SetConfigName("config")
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(".")

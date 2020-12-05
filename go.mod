@@ -1,4 +1,4 @@
-module github.com/treethought/spoon
+module github.com/treethought/nokia
 
 go 1.14
 

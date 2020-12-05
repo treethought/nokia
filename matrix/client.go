@@ -2,7 +2,7 @@ package matrix
 
 import (
 	"github.com/spf13/viper"
-	"github.com/treethought/spoon/logger"
+	"github.com/treethought/nokia/logger"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )

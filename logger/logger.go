@@ -8,7 +8,7 @@ import (
 
 var logger *log.Logger
 var once sync.Once
-var filename = "spoon.log"
+var filename = "nokia.log"
 
 func init() {
 	logger = GetLoggerInstance()
@@ -24,6 +24,6 @@ func GetLoggerInstance() *log.Logger {
 
 func createLogger(fname string) *log.Logger {
 	file, _ := os.OpenFile(fname, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
-	return log.New(file, "spoon.", log.Lshortfile)
+	return log.New(file, "nokia.", log.Lshortfile)
 
 }

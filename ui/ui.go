@@ -2,8 +2,8 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/treethought/spoon/logger"
-	"github.com/treethought/spoon/matrix"
+	"github.com/treethought/nokia/logger"
+	"github.com/treethought/nokia/matrix"
 	"gitlab.com/tslocum/cview"
 )
 

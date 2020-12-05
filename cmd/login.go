@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/treethought/spoon/matrix"
+	"github.com/treethought/nokia/matrix"
 )
 
 // loginCmd represents the login command
