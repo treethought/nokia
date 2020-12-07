@@ -20,6 +20,7 @@ func New() (c *Client, err error) {
 	c = &Client{}
 	homeserver := viper.GetString("homeserver")
 	c.m, err = mautrix.NewClient(homeserver, "", "")
+	c.m.Store = newDiskStore()
 	return
 }
 
