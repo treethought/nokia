@@ -10,8 +10,10 @@ import (
 var log = logger.GetLoggerInstance()
 
 type Client struct {
-	m            *mautrix.Client
-	syncCallback func()
+	m *mautrix.Client
+	// syncCallback    func()
+	messageHandler  mautrix.EventHandler
+	roomNameHandler mautrix.EventHandler
 }
 
 func New() (c *Client, err error) {
@@ -56,13 +58,18 @@ func (c *Client) SetSyncCallback(f func()) {
 }
 
 func (c *Client) SetMessageHandler(handler mautrix.EventHandler) {
+	c.messageHandler = handler
+
 	syncer := c.m.Syncer.(*mautrix.DefaultSyncer)
-	syncer.OnEventType(event.EventMessage, handler)
+	syncer.OnEventType(event.EventMessage, c.messageHandler)
+
 }
 
 func (c *Client) SetRoomNameHandler(handler mautrix.EventHandler) {
+	c.roomNameHandler = handler
 	syncer := c.m.Syncer.(*mautrix.DefaultSyncer)
-	syncer.OnEventType(event.StateRoomName, handler)
+	syncer.OnEventType(event.StateRoomName, c.roomNameHandler)
+}
 
 func (c *Client) SendMessage(roomName string, room id.RoomID, text string) {
 	log.Printf("Sending message to room %s:\n%s", roomName, text)
