@@ -40,7 +40,7 @@ func (c *Client) Login() {
 }
 
 func (c *Client) Sync() error {
-	log.Print("syncing....\n")
+	log.Print("starting sync")
 	err := c.m.Sync()
 	if err != nil {
 		log.Fatal(err)
@@ -63,6 +63,17 @@ func (c *Client) SetMessageHandler(handler mautrix.EventHandler) {
 func (c *Client) SetRoomNameHandler(handler mautrix.EventHandler) {
 	syncer := c.m.Syncer.(*mautrix.DefaultSyncer)
 	syncer.OnEventType(event.StateRoomName, handler)
+
+func (c *Client) SendMessage(roomName string, room id.RoomID, text string) {
+	log.Printf("Sending message to room %s:\n%s", roomName, text)
+	resp, err := c.m.SendText(room, text)
+	if err != nil {
+		log.Fatalf("Failed to send message %v", err)
+	}
+	log.Printf("Send message with event id: %s", resp.EventID.String())
+
+}
+
 }
 
 func (c *Client) ListRooms() ([]string, error) {

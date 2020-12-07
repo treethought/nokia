@@ -15,6 +15,7 @@ const (
 	RoomList    View = "rooms"
 	MessageList View = "main"
 	Status      View = "status"
+	Input       View = "input"
 )
 
 type UI struct {
@@ -60,6 +61,15 @@ func (ui *UI) Render() {
 }
 
 func (ui *UI) initWidgets() {
+
+	input := NewInputWidget()
+	ui.Widgets[Input] = input
+	input.SetDoneFunc(func(key tcell.Key) {
+		room := ui.state.CurrentRoom
+		roomName := ui.state.Rooms[room].Name
+		ui.m.SendMessage(roomName, room, input.GetText())
+		input.SetText("")
+	})
 
 	status := NewStatusWidget()
 	ui.Widgets[Status] = status
@@ -109,7 +119,8 @@ func (ui *UI) initGrid() {
 
 	ui.grid.AddItem(ui.Widgets[Status], 0, 2, 1, 3, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[RoomList], 1, 0, 3, 1, 0, 0, true)
-	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 3, 3, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 2, 3, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[Input], 3, 1, 1, 3, 0, 0, true)
 
 	ui.app.SetRoot(ui.grid, true)
 	ui.app.QueueUpdateDraw(func() {})
@@ -121,10 +132,26 @@ func (ui *UI) initGrid() {
 
 		key := event.Key()
 		switch key {
-		case tcell.KeyTAB:
+		case tcell.KeyTab:
 			ui.toggleFocus()
 			return nil
+
+		case tcell.KeyEscape:
+			ui.app.SetFocus(ui.Widgets[RoomList])
+			ui.currentwidget = ui.Widgets[RoomList]
+			return nil
+
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'i': // Home.
+				ui.app.SetFocus(ui.Widgets[Input])
+				ui.currentwidget = ui.Widgets[Input]
+				return nil
+			}
+
+			return event
 		}
+
 		return event
 	})
 	log.Print("grid initialized")
