@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"gitlab.com/tslocum/cview"
 )
@@ -31,6 +33,16 @@ func (w *RoomWidget) load(rooms []string) {
 
 func (w *RoomWidget) Render(ui *UI) error {
 	w.Clear()
+
+	for len(ui.state.Rooms) == 0 {
+		if len(w.GetItems()) > 3 {
+			w.Clear()
+		}
+		w.AddItem(cview.NewListItem("..."))
+		ui.app.QueueUpdateDraw(func() {})
+		time.Sleep(time.Second * 1)
+
+	}
 
 	if len(ui.state.Rooms) == 0 {
 		item := cview.NewListItem("Loading rooms...")

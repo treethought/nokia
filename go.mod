@@ -10,5 +10,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	gitlab.com/tslocum/cview v1.5.1
 	golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf // indirect
+	gorm.io/driver/sqlite v1.1.4
+	gorm.io/gorm v1.20.8
 	maunium.net/go/mautrix v0.7.13
 )

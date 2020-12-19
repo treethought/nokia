@@ -1,6 +1,10 @@
 package ui
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/treethought/nokia/logger"
 	"github.com/treethought/nokia/matrix"
@@ -42,7 +46,6 @@ func New() *UI {
 	ui := &UI{app: tapp, m: m}
 
 	ui.state = NewState(ui)
-	ui.state.fromDisk()
 
 	ui.Widgets = make(map[View]WidgetRenderer)
 	return ui
@@ -161,7 +164,6 @@ func (ui *UI) initGrid() {
 func (u *UI) setSyncHandlers() {
 	u.m.SetMessageHandler(u.state.handleMessageEvent)
 	u.m.SetRoomNameHandler(u.state.handleRoomNameEvent)
-	u.m.SetSyncCallback(u.state.toDisk)
 }
 
 func Start() {
@@ -171,6 +173,16 @@ func Start() {
 	ui.Render()
 
 	ui.m.Login()
+	ui.state.loadFromCache(ui.m.Store())
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func(ui *UI) {
+		<-c
+		log.Print("program interrupted, saving state")
+		ui.m.CacheState()
+		os.Exit(1)
+	}(ui)
 
 	go ui.m.Sync()
 
