@@ -43,14 +43,15 @@ func (w *RoomWidget) Render(ui *UI) error {
 	for id, r := range ui.state.Rooms {
 		var item *cview.ListItem
 
-		if r.Name != "" {
-			item = cview.NewListItem(r.Name)
-		} else {
-			item = cview.NewListItem(id.String())
-
+		if r.Name == "" {
+			log.Printf("room %s has no name", id.String())
+			continue
 		}
+
+		item = cview.NewListItem(r.Name)
 		item.SetReference(r)
 		w.AddItem(item)
+
 	}
 	ui.app.QueueUpdateDraw(func() {})
 	return nil
