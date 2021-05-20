@@ -52,7 +52,6 @@ func (s *State) handleMessageEvent(src mautrix.EventSource, e *event.Event) {
 	m := &Message{e.Content.AsMessage(), sender}
 	s.Messages[e.RoomID] = append(s.Messages[e.RoomID], m)
 	s.ui.Render()
-	go s.toDisk()
 
 }
 
@@ -68,7 +67,6 @@ func (s *State) handleRoomNameEvent(src mautrix.EventSource, e *event.Event) {
 		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey, Name: name}
 	}
 	s.ui.Render()
-	go s.toDisk()
 
 	return
 }

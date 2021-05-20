@@ -147,16 +147,11 @@ func Start() {
 
 	go ui.m.Sync()
 
-	// go func(*UI) {
-	// 	err := ui.app.Run()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// }(ui)
 
 	err := ui.app.Run()
 	if err != nil {
 		panic(err)
 	}
+    ui.state.toDisk()
 
 }
