@@ -60,7 +60,6 @@ func (w *RoomWidget) Render(ui *UI) error {
 
 func (w *RoomWidget) SetSelectHandler(f func(item *cview.ListItem)) {
 	w.selectHandler = f
-
 }
 
 func (w *RoomWidget) HandleInput(event *tcell.EventKey) *tcell.EventKey {

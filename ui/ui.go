@@ -15,6 +15,7 @@ const (
 	RoomList    View = "rooms"
 	MessageList View = "main"
 	Status      View = "status"
+	Input       View = "input"
 )
 
 type UI struct {
@@ -50,6 +51,7 @@ func New() *UI {
 func (ui *UI) init() {
 	ui.initWidgets()
 	ui.initGrid()
+	// ui.initPanels()
 	log.Print("UI intiialized")
 }
 
@@ -57,6 +59,7 @@ func (ui *UI) Render() {
 	for _, w := range ui.Widgets {
 		go w.Render(ui)
 	}
+
 }
 
 func (ui *UI) initWidgets() {
@@ -71,6 +74,9 @@ func (ui *UI) initWidgets() {
 	msgs := NewMessagesWidget()
 	ui.Widgets[MessageList] = msgs
 	log.Print("widgets initialized")
+
+	input := NewInputBox()
+	ui.Widgets[Input] = input
 
 }
 
@@ -111,6 +117,7 @@ func (ui *UI) initGrid() {
 	ui.grid.AddItem(ui.Widgets[RoomList], 0, 0, 3, 1, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[MessageList], 0, 1, 3, 3, 0, 0, true)
 	ui.grid.AddItem(ui.Widgets[Status], 3, 0, 1, 1, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[Input], 3, 1, 1, 2, 0, 0, true)
 
 	ui.app.SetRoot(ui.grid, true)
 	ui.app.QueueUpdateDraw(func() {})
@@ -129,7 +136,41 @@ func (ui *UI) initGrid() {
 		return event
 	})
 	log.Print("grid initialized")
+}
 
+func (ui *UI) initPanels() {
+	panels := cview.NewPanels()
+	panels.AddPanel("messages", ui.Widgets[MessageList], true, true)
+	// panels.AddPanel("thread", app.thread, true, true)
+	// panels.AddPanel("compose", app.compose, true, true)
+	panels.SetCurrentPanel("messages")
+	// app.panels = panels
+
+	mid := cview.NewFlex()
+	mid.SetBackgroundColor(tcell.ColorDefault)
+	mid.SetDirection(cview.FlexRow)
+	mid.AddItem(panels, 0, 4, true)
+	// mid.AddItem(app.statusView, 0, 4, false)
+	mid.AddItem(ui.Widgets[Input], 0, 1, false)
+
+	flex := cview.NewFlex()
+	flex.SetBackgroundTransparent(false)
+	flex.SetBackgroundColor(tcell.ColorDefault)
+
+	left := cview.NewFlex()
+	left.SetDirection(cview.FlexRow)
+	left.AddItem(ui.Widgets[RoomList], 0, 7, false)
+	left.AddItem(ui.Widgets[Status], 0, 1, false)
+	// left.AddItem(acctInfo, 0, 1, false)
+
+	flex.AddItem(left, 0, 1, false)
+	flex.AddItem(mid, 0, 4, false)
+
+	ui.app.SetRoot(flex, true)
+	ui.app.QueueUpdateDraw(func() {})
+
+	ui.app.SetFocus(ui.Widgets[RoomList])
+	ui.currentwidget = ui.Widgets[RoomList]
 }
 
 func (u *UI) setSyncHandlers() {
