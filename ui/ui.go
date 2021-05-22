@@ -77,8 +77,9 @@ func (ui *UI) initWidgets() {
 func (ui *UI) roomSelectHandler(item *cview.ListItem) {
 	ref := item.GetReference()
 
-	room, ok := ref.(*Room)
+	room, ok := ref.(Room)
 	if !ok {
+
 		panic("room ref not a room")
 	}
 	log.Printf("Selected room: %s", room.ID.String())
@@ -90,6 +91,7 @@ func (ui *UI) roomSelectHandler(item *cview.ListItem) {
 
 }
 
+
 func (ui *UI) toggleFocus() {
 	if ui.currentwidget == ui.Widgets[RoomList] {
 		ui.app.SetFocus(ui.Widgets[MessageList])
@@ -97,7 +99,6 @@ func (ui *UI) toggleFocus() {
 	} else {
 		ui.app.SetFocus(ui.Widgets[RoomList])
 		ui.currentwidget = ui.Widgets[RoomList]
-
 	}
 }
 
@@ -107,9 +108,9 @@ func (ui *UI) initGrid() {
 	ui.grid.SetColumns(0, -3, 0)
 	ui.grid.SetBorders(true)
 
-	ui.grid.AddItem(ui.Widgets[Status], 0, 2, 1, 3, 0, 0, true)
-	ui.grid.AddItem(ui.Widgets[RoomList], 1, 0, 3, 1, 0, 0, true)
-	ui.grid.AddItem(ui.Widgets[MessageList], 1, 1, 3, 3, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[RoomList], 0, 0, 3, 1, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[MessageList], 0, 1, 3, 3, 0, 0, true)
+	ui.grid.AddItem(ui.Widgets[Status], 3, 0, 1, 1, 0, 0, true)
 
 	ui.app.SetRoot(ui.grid, true)
 	ui.app.QueueUpdateDraw(func() {})
@@ -143,15 +144,12 @@ func Start() {
 	ui.setSyncHandlers()
 	ui.Render()
 
-	ui.m.Login()
-
-	go ui.m.Sync()
-
+    ui.m.Login()
+    go ui.m.Sync()
 
 	err := ui.app.Run()
 	if err != nil {
 		panic(err)
 	}
-    ui.state.toDisk()
-
+	ui.state.toDisk()
 }

@@ -12,8 +12,8 @@ import (
 
 type State struct {
 	sync.Mutex
-	Rooms       map[id.RoomID]*Room
-	Messages    map[id.RoomID][]*Message
+	Rooms       map[id.RoomID]Room
+	Messages    map[id.RoomID][]Message
 	ui          *UI
 	CurrentRoom id.RoomID
 }
@@ -31,8 +31,8 @@ type Message struct {
 
 func NewState(ui *UI) *State {
 	s := &State{
-		Rooms:    make(map[id.RoomID]*Room),
-		Messages: make(map[id.RoomID][]*Message),
+		Rooms:    make(map[id.RoomID]Room),
+		Messages: make(map[id.RoomID][]Message),
 		ui:       ui,
 	}
 	return s
@@ -43,13 +43,13 @@ func (s *State) handleMessageEvent(src mautrix.EventSource, e *event.Event) {
 	s.Lock()
 	defer s.Unlock()
 	if _, ok := s.Rooms[e.RoomID]; !ok {
-		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey}
+		s.Rooms[e.RoomID] = Room{ID: e.RoomID, StateKey: e.StateKey}
 		log.Printf("handling first message for room %s", e.RoomID.String())
 	}
 
 	sender := e.Sender.String()
 
-	m := &Message{e.Content.AsMessage(), sender}
+	m := Message{e.Content.AsMessage(), sender}
 	s.Messages[e.RoomID] = append(s.Messages[e.RoomID], m)
 	s.ui.Render()
 
@@ -64,16 +64,16 @@ func (s *State) handleRoomNameEvent(src mautrix.EventSource, e *event.Event) {
 	if r, ok := s.Rooms[e.RoomID]; ok {
 		r.Name = name
 	} else {
-		s.Rooms[e.RoomID] = &Room{ID: e.RoomID, StateKey: e.StateKey, Name: name}
+		s.Rooms[e.RoomID] = Room{ID: e.RoomID, StateKey: e.StateKey, Name: name}
 	}
 	s.ui.Render()
 
 	return
 }
 
-func (s *State) CurrentRoomMessages() []*Message {
+func (s *State) CurrentRoomMessages() []Message {
 	if s.CurrentRoom == "" {
-		return []*Message{}
+		return []Message{}
 	}
 	return s.Messages[s.CurrentRoom]
 
